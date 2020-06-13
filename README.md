@@ -1,0 +1,2 @@
+# Plantilla HTML
+Plantilla genérica

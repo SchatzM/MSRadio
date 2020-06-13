@@ -1,0 +1,38 @@
+// *****************************
+// ++++++++++++ SASS +++++++++++
+// *****************************
+
+// RESET
+@import "base/reset/reset";
+    // si estamos utilizando IE
+    // @import "base/reset/normalize";
+
+
+// VARIABLES
+@import "lib/variables";
+
+
+// TIPOGRAFIA
+@import "base/tipografia";
+
+
+// LIB
+@import "lib/mixins";
+@import "lib/placeholders";
+
+
+// LINKS
+@import "base/links/botones";
+@import "base/links/enlaces";
+@import "base/links/menus";
+
+// FORMULARIOS
+@import "base/formularios";
+
+// IMAGENES
+@import "base/imagenes";
+
+// LAYOUTS
+@import "layout/banners";
+@import "layout/grids";
+@import "layout/layouts";
