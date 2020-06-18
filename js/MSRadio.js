@@ -1,8 +1,7 @@
 'use strict';
 const	cnf = {
 			radio: {
-				baseUrl: 'https://mashiron.xyz:8443/',
-				mountPoint : 'MSRadio'
+				baseUrl: 'https://mashiron.xyz:8443/'
 			},
 			player: {
 				volume: {
@@ -26,23 +25,22 @@ const	cnf = {
 let r, s = {};
 
 const MSRadio = () => {
-	const	player = () => {
-				const	radioURL = cnf.radio.baseUrl + cnf.radio.mountPoint,
-						p = new Howl ({
-							src: radioURL,
+	const	player = (stream_url) => {
+				const	p = new Howl ({
+							src: stream_url,
 							html5: !0,
 							format: 'ogg',
 							mute: cnf.player.volume.mute,
 							volume: 0,
 							autoplay: !1,
 							onload: () => {
-								console.info ('loaded', radioURL);
+								console.info ('loaded', stream_url);
 							},
 							onloaderror: (e) => {
 								console.error (e);
 							},
 							onplay: () => {
-								console.info ('play', radioURL);
+								console.info ('play', stream_url);
 								getStreamInfo (!0);
 							},
 							onplayerror: (e) => {
@@ -90,7 +88,7 @@ const MSRadio = () => {
 							s.meta = data;
 							s.info = info;
 						};
-						r ? !1 : player ();
+						r ? !1 : player (dataProcessed.listenurl);
 						s.live = !0;
 					} else {
 						s.live = !1;
@@ -108,8 +106,10 @@ const MSRadio = () => {
 
 				if (isPlaying) {
 					if (!cTrk) {
+						// Current track single call handler
 						return console.warn ('Current track is:', `${prevTrack.title} by ${prevTrack.artist} (${prevTrack.date}) [${prevTrack.genre}]`);
 					} else {
+						// Current track info changed/not changed handler
 						let infoTemplate = `${cTrk.title} by ${cTrk.artist} (${cTrk.date}) [${cTrk.genre}]`;
 						if (cTrk.ID != prevTrack.ID) { // Current track has changed
 							return console.warn ('Track changed to:', infoTemplate);
