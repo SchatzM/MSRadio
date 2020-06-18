@@ -1,7 +1,12 @@
+/**
+ * MSRadio
+ * @author Brian Passos
+ */
+
 'use strict';
 const	cnf = {
 			radio: {
-				baseUrl: 'https://mashiron.xyz:8443/'
+				baseUrl: '//mashiron.xyz:8443/'
 			},
 			player: {
 				volume: {
@@ -18,7 +23,6 @@ const	cnf = {
 					enabled: true,
 					refreshTime: 10
 				}
-
 			}
 		};
 
