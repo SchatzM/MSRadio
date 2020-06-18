@@ -6,13 +6,20 @@ const	cnf = {
 			},
 			player: {
 				volume: {
-					mute: !1,
+					mute: false,
 					defaultValueInt: 50,
 					fadeTime: {
 						in: 2500,
 						out: 1500
 					}
 				}
+			},
+			info: {
+				autoUpdate: {
+					enabled: true,
+					refreshTime: 10
+				}
+
 			}
 		};
 
@@ -117,12 +124,14 @@ const MSRadio = () => {
 				};
 			},
 			getStreamInfo = (Interval) => {
-				if (Interval) {
-					setInterval (() => {
+				if (cnf.info.autoUpdate.enabled) {
+					if (Interval) {
+						setInterval (() => {
+							parseInfo ();
+						}, cnf.info.autoUpdate.refreshTime * 1000);
+					} else {
 						parseInfo ();
-					}, 3500);
-				} else {
-					parseInfo ();
+					};
 				};
 			};
 
