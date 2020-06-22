@@ -10,7 +10,7 @@ Reintentado esta wea.
 >* [js-base64](https://github.com/dankogai/js-base64). ([jsDelivr](https://www.jsdelivr.com/package/npm/js-base64))
 >* [Animista](https://animista.net/).
 
-#### For the stream:
+#### For the stream
 >* [foobar2000](https://www.foobar2000.org/).
 >* [Rocket Streaming Audio Server](https://www.rocketbroadcaster.com/streaming-audio-server/).
 >* [Sound Empire Caster](https://djgarybaldy.co.uk/sound-empire-caster/).
