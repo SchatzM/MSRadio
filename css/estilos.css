@@ -15,7 +15,7 @@ html {
 	animation:tracking-in-expand .7s cubic-bezier(.215,.61,.355,1.000) both
 }
 .hero-body::after {
-	content: 'v.0.1.2';
+	content: 'v0.1.5';
 	position: fixed;
 	bottom: 0;
 	right: 5px;

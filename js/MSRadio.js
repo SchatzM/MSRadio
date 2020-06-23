@@ -8,8 +8,8 @@
 let r, s = {};
 const	cnf = {
 			radio: {
-				baseUrl: 'https://mashiron.xyz:7566/',
-				status: 'health'
+				baseUrl: 'https://mashiron.xyz:7566',
+				status: '/health'
 			},
 			player: {
 				volume: {
@@ -43,7 +43,7 @@ const MSRadio = () => {
 				const	p = new Howl ({
 							src: stream_url,
 							html5: !0,
-							format: 'mp3',
+							format: ['aac','mp3','aac+'],
 							mute: cnf.player.volume.mute,
 							volume: 0,
 							html5PoolSize: 2,
@@ -86,15 +86,14 @@ const MSRadio = () => {
 			},
 			parseInfo = async () => {
 				return getStreamData (cnf.radio.baseUrl + cnf.radio.status).then (data => {
-					// console.info (data.mounts['/MSRadio'])
-					const dataProcessed = data.mounts['/MSRadio'];
+					const dataProcessed = Object.entries (data.mounts)[0] ? Object.entries (data.mounts)[0][1] : false;
 					if (dataProcessed) {
 						let np = dataProcessed.metadata.now_playing || false;
 						if (np) {
 							getMetadata ();
 							s.meta = data;
 						};
-						r ? !1 : player (cnf.radio.baseUrl + 'MSRadio?latency=low');
+					r ? !1 : player (Object.keys (data.mounts).map (i => cnf.radio.baseUrl + i));
 						s.live = !0;
 						document.body.classList.add ('live');
 					} else {
@@ -152,7 +151,7 @@ const MSRadio = () => {
 
 				if (isPlaying) {
 					try {
-						const	url = stream_url + 'MSRadio/metadata',
+						const	url = stream_url + '/MSRadio/metadata',
 								eventSource = new EventSource (url);
 
 						eventSource.onmessage = (event) => {
