@@ -8,7 +8,7 @@
 let r, s = {};
 const	cnf = {
 			radio: {
-				baseUrl: 'https://mashiron.xyz:7566',
+				baseUrl: '//mashiron.xyz:7566',
 				status: '/health'
 			},
 			player: {
@@ -28,64 +28,74 @@ const	cnf = {
 				}
 			}
 		},
-		DEBUG = !0;
+		DEBUG = !1;
 
-function track (artist, title, date, genre) {
-	this.artist = artist;
-	this.title = title;
-	this.date = date;
-	this.genre = genre;
-	this.ID = IDgen (title + artist);
+function track (obj) {
+	const meta = Object.values(obj)[0];
+	this.artist = meta.artist;
+	this.title = meta.title;
+	this.album = meta.album;
+	this.albumArtist = meta.albumArtist;
+	this.date = meta.date;
+	this.genre = meta.genre;
+	this.ID = IDgen (meta.title + meta.artist);
 };
+// function MSRadioPlayer (cnf) {
 
+// }
 const MSRadio = () => {
 	const	player = (stream_url) => {
-				const	p = new Howl ({
-							src: stream_url,
-							html5: !0,
-							format: ['aac','mp3','aac+'],
-							mute: cnf.player.volume.mute,
-							volume: 0,
-							html5PoolSize: 2,
-							autoplay: !1,
-							onload: () => {
-								console.info ('loaded', stream_url);
-							},
-							onloaderror: (e) => {
-								console.error (e);
-							},
-							onplay: () => {
-								console.info ('play', stream_url);
-								getStreamInfo (!0);
-							},
-							onplayerror: (e) => {
-								console.error (e);
-							},
-							onvolume: () => {
-								console.info ('volume', r.volume ());
-							},
-							onfade: (e) => {
+				const	pnope = (stream_url) => {
+					const audio = new Audio ();
+					audio.loop = !1;
+					audio.autoplay = !0;
+					audio.src = stream_url[0];
+				},
+				p = new Howl ({
+					src: stream_url,
+					html5: !0,
+					format: ['aac','mp3','aac+'],
+					mute: cnf.player.volume.mute,
+					volume: 0,
+					autoplay: !1,
+					autoUnlock: !0,
+					onload: () => {
+						console.info ('loaded', stream_url);
+					},
+					onloaderror: (e) => {
+						console.error (e);
+					},
+					onplay: () => {
+						console.info ('play', stream_url);
+						getStreamInfo (!0);
+						// WATest ();
+					},
+					onplayerror: (e) => {
+						console.error (e);
+					},
+					onvolume: () => {
+						// console.info ('volume', r.volume ());
+						r.volume () == cnf.player.volume.defaultValueInt/100 ? setoVolume () : false;
+					},
+					onfade: (e) => {
 
-							},
-							onstop: (e) => {
-								console.warn ('stop', e);
-							},
-							onend: (e) => {
-								console.warn ('end', e);
-							},
-							onunlock: (e) => {
-								console.info ('unlock', e);
-							}
-						});
+					},
+					onstop: (e) => {
+						console.warn ('stop', e);
+					},
+					onend: (e) => {
+						console.warn ('end', e);
+					},
+					onunlock: (e) => {
+						console.info ('unlock', e);
+					}
+				});
 				return r = p;
 			},
-			getStreamData = async (url) => {
-				let response = await fetch (url),
-					data = await response.json ();
-				return data;
-			},
 			parseInfo = async () => {
-				return getStreamData (cnf.radio.baseUrl + cnf.radio.status).then (data => {
+				return getStreamData (cnf.radio.baseUrl + cnf.radio.status)
+				.then (response => response.json ())
+				.then (data => {
 					const dataProcessed = Object.entries (data.mounts)[0] ? Object.entries (data.mounts)[0][1] : false;
 					if (dataProcessed) {
 						let np = dataProcessed.metadata.now_playing || false;
@@ -93,7 +103,7 @@ const MSRadio = () => {
 							getMetadata ();
 							s.meta = data;
 						};
-					r ? !1 : player (Object.keys (data.mounts).map (i => cnf.radio.baseUrl + i));
+					r ? !1 : player (Object.keys (data.mounts).map (i => cnf.radio.baseUrl + i + '?latency=low'));
 						s.live = !0;
 						document.body.classList.add ('live');
 					} else {
@@ -120,6 +130,7 @@ const MSRadio = () => {
 						let infoTemplate = `${cTrk.title} by ${cTrk.artist} (${cTrk.date}) [${cTrk.genre}]`;
 						if (cTrk.ID != prevTrack.ID) { // Current track has changed
 							appendInfoUI (cTrk);
+							// MB.getID (cTrk.albumArtist,cTrk.album);
 							return console.warn ('Track changed to:', infoTemplate);
 						} else { // Current track has not changed
 							if (!s.cTrackAnnounced) {
@@ -155,13 +166,13 @@ const MSRadio = () => {
 								eventSource = new EventSource (url);
 
 						eventSource.onmessage = (event) => {
-							const	metadata = JSON.parse (event.data),
-									artistTitle = metadata['metadata'],
-									src = artistTitle,
-									srcSpltd = src.split (' — '),
-									info = new track (srcSpltd[1], srcSpltd[2], srcSpltd[3], srcSpltd[4]);
+							const	data = JSON.parse (event.data),
+									meta = data['metadata'],
+									info = new track (JSON.parse (meta));
 
+							console.info (meta)
 							// console.info ('track checking...');
+							// console.warn ('src', srcSpltd);
 							infoTrack (info);
 							// console.warn (artistTitle);
 							s.info = info;
@@ -171,6 +182,33 @@ const MSRadio = () => {
 						console.error (error);
 					}
 				}
+			},
+			setoVolume = () => {
+				let steps = 5;
+
+				if (!document.querySelector ('.volBar')) {
+					const	baseEl = document.createElement ('section'),
+							percentsEl = document.createElement ('div');
+
+					baseEl.classList.add ('volBar', 'navbar', 'is-fixed-top');
+					baseEl.appendChild (percentsEl);
+					document.body.querySelector ('main').appendChild (baseEl);
+				}
+
+				document.querySelector ('.MSR-main').addEventListener ('wheel', (e) => {
+					console.log ('onwheel');
+					e.deltaY > 0 ? r.volume () != 0 ? r.volume ((r.volume ()-(steps/100)).toFixed (2)) : false : r.volume () != 1 ? r.volume ((r.volume ()+(steps/100)).toFixed (2)) : false;
+					// if (e.deltaY > 0) {
+					// 	if (r.volume() != 0) {
+					// 		r.volume ((r.volume() - (steps/100)).toFixed(2))
+					// 	}
+					// } else {
+					// 	if (r.volume() != 1) {
+					// 		r.volume ((r.volume() + (steps/100)).toFixed(2))
+					// 	}
+					// }
+					// console.warn (r.volume ());
+				});
 			}
 
 			// MSRadio.player = player;
@@ -179,6 +217,10 @@ const MSRadio = () => {
 			MSRadio.getCurrentTrack = infoTrack;
 
 			return MSRadio.getInfo ();
+		},
+		getStreamData = async (url) => {
+			let response = await fetch (url);
+			return await response;
 		},
 		IDgen = (str) => {
 			let encodeMe = str || new Date ().now;
@@ -254,12 +296,132 @@ const MSRadio = () => {
 							r.fade (0, cnf.player.volume.defaultValueInt/100, cnf.player.volume.fadeTime.in);
 						};
 						s.init = !0;
-					};
+					};s
 				});
 			} else {
 				appendInfoUI ({title: 'offline', genre: ':c'});
 				bkChanger ('#eb4d4b');
 			}
+		},
+		MB = {
+			getID: (artist, album) => {
+				const url = 'https://musicbrainz.org/ws/2/release?query=',
+					encoded = encodeURI (url + `artist:${artist}+recording:${album}&fmt=json`)
+
+				if (artist || album) {
+					artist.toLowerCase () == 'compcomp' ? artist = 'Various Artists': artist;
+					console.info ('MB.getID: ', encoded)
+					getStreamData (encoded)
+					.then (response => response.json ())
+					.then (data => {
+						for (const [key, value] of Object.entries (data.releases)) {
+							console.log ('Artist: ', value['artist-credit'][0].name,'-', 'Album: ', value.title);
+						}
+
+						Object.entries (data.releases).some ((v) => {
+							console.info ('|',v[1]['artist-credit'][0].name.includes (artist),'|',artist,'=',v[1]['artist-credit'][0].name,'\n|',v[1].title.includes (album),'|',album,'=',v[1].title)
+						});
+
+						console.log ('releases: ', data.releases)
+						return data;
+					})
+					.then (data => getStreamData ('https://coverartarchive.org/release/' + data.releases[0].id))
+					.then (response => response.json ())
+					.then (data => {
+						let img = data.images[0].thumbnails.small;
+						if (document.querySelectorAll ('img').length < 1) {
+							let imgEl = document.createElement('img');
+							imgEl.style.background = `url(${img}) no-repeat center center`;
+							document.body.appendChild (imgEl)
+						} else {
+							let imgEl = document.querySelector ('img');
+							imgEl.style.background = `url(${img}) no-repeat center center`;
+						}
+						console.log (img)
+					})
+					.catch (err => console.log (err))
+				};
+			}
+		},
+		xmlToJson = (xml) => {
+			// Create the return object
+			var obj = {};
+
+			if (xml.nodeType == 1) { // element
+				// do attributes
+				if (xml.attributes.length > 0) {
+					obj["@attributes"] = {};
+					for (var j = 0; j < xml.attributes.length; j++) {
+						var attribute = xml.attributes.item(j);
+						obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+					}
+				}
+			} else if (xml.nodeType == 3) { // text
+				obj = xml.nodeValue;
+			}
+
+			// do children
+			if (xml.hasChildNodes()) {
+				for(var i = 0; i < xml.childNodes.length; i++) {
+					var item = xml.childNodes.item (i);
+					var nodeName = item.nodeName;
+					if (typeof (obj[nodeName]) == "undefined") {
+						obj[nodeName] = xmlToJson (item);
+					} else {
+						if (typeof (obj[nodeName].push) == "undefined") {
+							var old = obj[nodeName];
+							obj[nodeName] = [];
+							obj[nodeName].push (old);
+						}
+						obj[nodeName].push (xmlToJson (item));
+					}
+				}
+			}
+			return obj;
+		},
+		WATest = () => {
+			// const audio = new Audio();
+			let context = Howler.ctx
+			let analyser = context.createAnalyser ()
+			const gainNode = context.createGain ();
+			Howler.masterGain.connect (analyser);
+			analyser.connect (context.destination)
+			// analyser.connect(gainNode);
+			// gainNode.connect(context.destination);
+			// const source = context.createMediaElementSource(audio);
+			// source.connect(analyser);
+			analyser.fftSize = 256
+			let bufferLength = analyser.frequencyBinCount
+			let dataArray = new Uint8Array (bufferLength)
+			let canvas = document.createElement ('canvas')
+			document.body.appendChild (canvas)
+			canvas.width = window.innerWidth
+			canvas.height = window.innerHeight
+			let ctx = canvas.getContext ('2d')
+			let WIDTH = canvas.width;
+			let HEIGHT = canvas.height;
+			let barWidth = (WIDTH / bufferLength) * 2.5
+			let barHeight
+			let x = 0
+			function renderFrame() {
+				console.log (analyser.getByteTimeDomainData (dataArray))
+				requestAnimationFrame (renderFrame);
+				x = 0;
+				analyser.getByteFrequencyData (dataArray);
+				ctx.fillStyle = "#000";
+				ctx.fillRect (0, 0, WIDTH, HEIGHT);
+				for (let i = 0; i < bufferLength; i++) {
+					barHeight = dataArray[i];
+
+					let r = barHeight + (25 * (i/bufferLength));
+					let g = 250 * (i/bufferLength);
+					let b = 50;
+					ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+					ctx.fillRect (x, HEIGHT - barHeight, barWidth, barHeight);
+					x += barWidth + 1;
+				}
+			}
+			renderFrame()
 		},
 		init = () => {
 			MSRadio ();

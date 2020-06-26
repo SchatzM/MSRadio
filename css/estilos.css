@@ -22,3 +22,20 @@ html {
 	font-weight: lighter
 }
 @-webkit-keyframes tracking-in-expand{0%{letter-spacing:-.5em;opacity:0}40%{opacity:.6}100%{opacity:1}}@keyframes tracking-in-expand{0%{letter-spacing:-.5em;opacity:0}40%{opacity:.6}100%{opacity:1}}
+
+canvas {
+	position: fixed;
+	top: 0;
+}
+
+img {
+	position: fixed;
+	bottom: 0;
+	width: 250px;
+	height: 250px;
+	transition: background-image .8s ease-in-out
+}
+
+.volBar {
+	min-height: 0;
+}
