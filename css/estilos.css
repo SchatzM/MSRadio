@@ -38,4 +38,17 @@ img {
 
 .volBar {
 	min-height: 0;
+	align-items: stretch;
+	justify-content: flex-start;
+	flex-direction: row;
+	transition: min-height .4s cubic-bezier(.68,-0.55,.27,1.55)
+}
+
+.volBar div {
+	min-height: inherit;
+	background: black;
+	transition: width .1s cubic-bezier(.73,-0.05,.27,1.55);
+}
+.changingVol {
+	min-height: 20px;
 }
