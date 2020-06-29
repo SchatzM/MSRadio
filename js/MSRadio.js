@@ -192,8 +192,13 @@ const MSRadio = () => {
 					flag = false;
 
 				if (!document.querySelector ('.volBar')) {
+<<<<<<< HEAD
 					baseEl.classList.add ('volBar', 'navbar', 'has-background-light', 'is-fixed-top');
 					percentsEl.classList.add ('volVal', 'has-background-primary');
+=======
+					baseEl.classList.add ('volBar', 'navbar', 'is-fixed-top');
+					percentsEl.classList.add ('volVal');
+>>>>>>> bee406c43c44ff45e8a0b138da93d67024e77138
 					baseEl.appendChild (percentsEl);
 					document.body.querySelector ('main').appendChild (baseEl);
 				}
@@ -201,6 +206,7 @@ const MSRadio = () => {
 				mainUI.addEventListener ('wheel', (e) => {
 					console.log ('onwheel');
 
+<<<<<<< HEAD
 					if (!flag) {
 						flag = true;
 						baseEl.classList.add ('changingVol');
@@ -228,6 +234,34 @@ const MSRadio = () => {
 					setTimeout (() => {
 						percentsEl.style.width = `${r.volume () * 100}%`;
 					}, 200);
+=======
+					// if (!flag) {
+					// 	flag = true;
+					// 	baseEl.classList.add ('changingVol');
+					// }
+
+					// clearTimeout (timer);
+					// timer = setTimeout (() => {
+					// 	baseEl.classList.remove ('changingVol');
+					// 	flag = false;
+					// }, 1000);
+
+					// e.deltaY > 0 ? r.volume () != 0 ? r.volume ((r.volume ()-(steps/100)).toFixed (2)) : false : r.volume () != 1 ? r.volume ((r.volume ()+(steps/100)).toFixed (2)) : false;
+
+					// if (e.deltaY > 0) {
+					// 	if (r.volume() != 0) {
+					// 		const volTarget = (r.volume() - (steps/100)).toFixed(2);
+					// 		r.volume (volTarget)
+					// 		percentsEl.style.width = `${volTarget * 100}%`;
+					// 	}
+					// } else {
+					// 	if (r.volume() != 1) {
+					// 		let volTarget = (r.volume() + (steps/100)).toFixed(2)
+					// 		r.volume (volTarget)
+					// 		percentsEl.style.width = `${volTarget * 100}%`;
+					// 	}
+					// }
+>>>>>>> bee406c43c44ff45e8a0b138da93d67024e77138
 					// console.warn (r.volume ());
 				});
 			}
