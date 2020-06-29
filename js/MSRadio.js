@@ -36,8 +36,7 @@ function track (obj) {
 	this.title = meta.title;
 	this.album = meta.album;
 	this.albumArtist = meta.albumArtist;
-	this.date = meta.date;
-	this.genre = meta.genre;
+	this.duration = meta.duration;
 	this.ID = IDgen (meta.title + meta.artist);
 };
 // function MSRadioPlayer (cnf) {
@@ -184,27 +183,48 @@ const MSRadio = () => {
 				}
 			},
 			setoVolume = () => {
-				let steps = 5;
+				const steps = 5,
+					mainUI = document.querySelector ('.MSR-main'),
+					baseEl = document.createElement ('section'),
+					percentsEl = document.createElement ('div');
+
+				let timer,
+					flag = false;
 
 				if (!document.querySelector ('.volBar')) {
-					const	baseEl = document.createElement ('section'),
-							percentsEl = document.createElement ('div');
-
 					baseEl.classList.add ('volBar', 'navbar', 'is-fixed-top');
+					percentsEl.classList.add ('volVal');
 					baseEl.appendChild (percentsEl);
 					document.body.querySelector ('main').appendChild (baseEl);
 				}
 
-				document.querySelector ('.MSR-main').addEventListener ('wheel', (e) => {
+				mainUI.addEventListener ('wheel', (e) => {
 					console.log ('onwheel');
-					e.deltaY > 0 ? r.volume () != 0 ? r.volume ((r.volume ()-(steps/100)).toFixed (2)) : false : r.volume () != 1 ? r.volume ((r.volume ()+(steps/100)).toFixed (2)) : false;
+
+					// if (!flag) {
+					// 	flag = true;
+					// 	baseEl.classList.add ('changingVol');
+					// }
+
+					// clearTimeout (timer);
+					// timer = setTimeout (() => {
+					// 	baseEl.classList.remove ('changingVol');
+					// 	flag = false;
+					// }, 1000);
+
+					// e.deltaY > 0 ? r.volume () != 0 ? r.volume ((r.volume ()-(steps/100)).toFixed (2)) : false : r.volume () != 1 ? r.volume ((r.volume ()+(steps/100)).toFixed (2)) : false;
+
 					// if (e.deltaY > 0) {
 					// 	if (r.volume() != 0) {
-					// 		r.volume ((r.volume() - (steps/100)).toFixed(2))
+					// 		const volTarget = (r.volume() - (steps/100)).toFixed(2);
+					// 		r.volume (volTarget)
+					// 		percentsEl.style.width = `${volTarget * 100}%`;
 					// 	}
 					// } else {
 					// 	if (r.volume() != 1) {
-					// 		r.volume ((r.volume() + (steps/100)).toFixed(2))
+					// 		let volTarget = (r.volume() + (steps/100)).toFixed(2)
+					// 		r.volume (volTarget)
+					// 		percentsEl.style.width = `${volTarget * 100}%`;
 					// 	}
 					// }
 					// console.warn (r.volume ());
@@ -223,8 +243,7 @@ const MSRadio = () => {
 			return await response;
 		},
 		IDgen = (str) => {
-			let encodeMe = str || new Date ().now;
-			return Base64.encode (encodeMe);
+			return Base64.encode (str || new Date ().now);
 		},
 		appendInfoUI = (str) => {
 			let el = document.querySelector ('.mainInfoContainer'),
@@ -257,9 +276,9 @@ const MSRadio = () => {
 
 			setTimeout (() => {
 				el.classList.add ('tracking-in-expand');
-				el.querySelector ('h1').textContent = artisTitle;
+				el.querySelector ('h1').textContent = str.title;
 				document.title = 'MSRadio: ' + artisTitle;
-				el.querySelector ('h2').textContent = str.genre;
+				el.querySelector ('h2').textContent = str.artist;
 			}, 500);
 			el.classList.remove ('tracking-in-expand');
 
@@ -285,12 +304,12 @@ const MSRadio = () => {
 			let isPlaying = r ? r.playing () : !1;
 
 			if (s.live) {
-				appendInfoUI ({title: 'live', genre: 'click to play'});
+				appendInfoUI ({title: 'live', artist: 'click to play'});
 
 				document.querySelector ('body').addEventListener ('click', () => {
 					if (s.init != true) {
 						if (isPlaying == !1) {
-							appendInfoUI ({title: 'loading', genre: '...'});
+							appendInfoUI ({title: 'loading', artist: '...'});
 							document.body.classList.add ('initd');
 							r.play ();
 							r.fade (0, cnf.player.volume.defaultValueInt/100, cnf.player.volume.fadeTime.in);
